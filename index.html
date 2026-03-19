@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Minimalist Music | TH ➞ EN Sync</title>
+    <style>
+        :root {
+            --muji-white: #f7f7f7;
+            --muji-gray: #e0e0e0;
+            --oak-wood: #d6bfa3;
+            --text-main: #333333;
+            --text-light: #888888;
+            --spotify-active: #1db954;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background-color: var(--muji-white);
+            color: var(--text-main);
+            font-family: 'Inter', -apple-system, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 40px 20px;
+            overflow-x: hidden;
+        }
+
+        /* --- CD PLAYER UNIT --- */
+        .player-wall {
+            position: relative;
+            width: 260px;
+            height: 260px;
+            background: #ffffff;
+            border-radius: 40px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.05);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 30px;
+            border: 1px solid #eee;
+            transition: width 0.3s, height 0.3s;
+        }
+
+        .cd-rotating-area {
+            width: 85%;
+            height: 85%;
+            background: #f4f4f4;
+            border-radius: 50%;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid #eee;
+        }
+
+        .cd-disc {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            position: relative;
+            animation: rotateCD 8s linear infinite;
+            animation-play-state: paused;
+            background: #eee;
+            overflow: hidden;
+        }
+
+        .cd-thumbnail {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            opacity: 0.9;
+            transition: 0.5s;
+        }
+
+        .cd-disc::after {
+            content: "";
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 15%;
+            height: 15%;
+            background: white;
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            border: 2px solid #ddd;
+            z-index: 2;
+        }
+
+        @keyframes rotateCD {
+            from {
+                transform: rotate(0deg);
+            }
+
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .pull-string {
+            position: absolute;
+            top: 260px;
+            left: 50%;
+            width: 1px;
+            height: 100px;
+            background: #ccc;
+            transform: translateX(-50%);
+            cursor: pointer;
+            z-index: 5;
+        }
+
+        .pull-string::after {
+            content: "";
+            position: absolute;
+            bottom: -8px;
+            left: -4px;
+            width: 8px;
+            height: 8px;
+            background: #bbb;
+            border-radius: 50%;
+        }
+
+        /* --- CONTROL BAR --- */
+        .control-bar {
+            display: flex;
+            gap: 30px;
+            margin-bottom: 30px;
+            align-items: center;
+        }
+
+        .icon-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 12px;
+            border-radius: 50%;
+            transition: background 0.2s, transform 0.1s;
+        }
+
+        .icon-btn:hover {
+            background: rgba(0, 0, 0, 0.03);
+        }
+
+        .icon-btn:active {
+            transform: scale(0.9);
+        }
+
+        .icon-btn svg {
+            width: 28px;
+            height: 28px;
+            fill: #666;
+        }
+
+        .btn-eject svg {
+            fill: none;
+            stroke: #cc6666;
+            stroke-width: 2;
+        }
+
+        /* --- INPUT AREA --- */
+        .search-container {
+            width: 100%;
+            max-width: 600px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-bottom: 30px;
+        }
+
+        @media (min-width: 600px) {
+            .search-container {
+                flex-direction: row;
+            }
+        }
+
+        input[type="text"] {
+            width: 100%;
+            background: #ffffff;
+            border: 1px solid #ddd;
+            border-radius: 12px;
+            padding: 14px 20px;
+            font-size: 1rem;
+            outline: none;
+            transition: border-color 0.3s;
+            appearance: none;
+        }
+
+        .btn-load {
+            background: #333;
+            color: white;
+            border: none;
+            border-radius: 12px;
+            padding: 14px 24px;
+            cursor: pointer;
+            font-size: 0.95rem;
+            font-weight: 600;
+            transition: background 0.2s;
+            text-align: center;
+        }
+
+        /* --- LYRICS VIEW (RWD) --- */
+        .container {
+            max-width: 900px;
+            width: 100%;
+        }
+
+        .header-labels {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            margin-bottom: 15px;
+            padding: 0 20px;
+            font-size: 0.7rem;
+            color: var(--text-light);
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        .lyrics-grid {
+            background: #ffffff;
+            border-radius: 24px;
+            height: 450px;
+            overflow-y: scroll;
+            scroll-behavior: smooth;
+            border: 1px solid #eee;
+            padding: 180px 0;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .lyrics-grid::-webkit-scrollbar {
+            width: 0;
+            background: transparent;
+        }
+
+        .lyric-item {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            padding: 30px 40px;
+            transition: all 0.5s ease;
+            opacity: 0.15;
+            cursor: pointer;
+        }
+
+        /* MOBILE OVERRIDES */
+        @media (max-width: 600px) {
+            body {
+                padding: 30px 15px;
+            }
+
+            .player-wall {
+                width: 200px;
+                height: 200px;
+                border-radius: 30px;
+            }
+
+            .pull-string {
+                top: 200px;
+                height: 80px;
+            }
+
+            .header-labels {
+                display: none;
+            }
+
+            .lyric-item {
+                grid-template-columns: 1fr;
+                text-align: center;
+                padding: 25px 20px;
+                gap: 8px;
+            }
+
+            .thai-col {
+                font-size: 1.25rem;
+                padding-right: 0;
+            }
+
+            .eng-col {
+                font-size: 1rem;
+            }
+
+            .lyrics-grid {
+                height: 400px;
+                padding: 160px 0;
+            }
+        }
+
+        .lyric-item.active {
+            opacity: 1;
+            transform: scale(1.03);
+        }
+
+        .thai-col {
+            font-size: 1.35rem;
+            font-weight: 600;
+            padding-right: 30px;
+            color: #111;
+            line-height: 1.4;
+        }
+
+        .eng-col {
+            font-size: 1.15rem;
+            color: #888;
+            line-height: 1.4;
+        }
+
+        .lyric-item.active .thai-col {
+            color: #000;
+        }
+
+        .lyric-item.active .eng-col {
+            color: #555;
+        }
+
+        #player {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            opacity: 0;
+            pointer-events: none;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="player-wall">
+        <div class="cd-rotating-area">
+            <div id="cdDisc" class="cd-disc">
+                <img id="cdThumbnail" class="cd-thumbnail" src="" alt="">
+            </div>
+        </div>
+        <div class="pull-string" onclick="togglePlayback()"></div>
+    </div>
+
+    <div class="control-bar">
+        <button class="icon-btn" onclick="player.playVideo()" aria-label="Play">
+            <svg viewBox="0 0 24 24">
+                <path d="M8 5v14l11-7z" />
+            </svg>
+        </button>
+        <button class="icon-btn" onclick="player.pauseVideo()" aria-label="Pause">
+            <svg viewBox="0 0 24 24">
+                <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z" />
+            </svg>
+        </button>
+        <button class="icon-btn btn-eject" onclick="ejectDisc()" aria-label="Eject">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+            </svg>
+        </button>
+    </div>
+
+    <div class="search-container">
+        <input type="text" id="ytUrl" placeholder="Paste YouTube Link..." spellcheck="false">
+        <button class="btn-load" onclick="initSyncPlayer()">Load 💿</button>
+    </div>
+
+    <div class="container">
+        <div id="lyricsView" style="display: none;">
+            <div class="header-labels">
+                <span>Original Thai</span>
+                <span>English</span>
+            </div>
+            <div id="lyricsGrid" class="lyrics-grid"></div>
+        </div>
+    </div>
+
+    <div id="player"></div>
+    <script src="https://www.youtube.com/iframe_api"></script>
+
+    <script>
+        let player;
+        let syncInterval;
+        let currentLyrics = [];
+
+        // FULL LYRICS: Polycat - พบกันใหม่ (So Long)
+        const MOCK_DB = {
+            "x5hkD526A5M": [
+                { time: 0, th: "[Piano Intro]", en: "[Piano Intro]" },
+                { time: 15, th: "และแล้วก็รู้ ว่าคนที่จบกันไป", en: "Finally, I know when people split up" },
+                { time: 21, th: "ด้วยคำที่บอกว่าเราจะมาพบกันใหม่", en: "Saying 'see you again'" },
+                { time: 26, th: "มักจะไม่พบกันอีก", en: "Usually, they won't meet again" },
+                { time: 33, th: "จากกันคราวนี้ ไม่อยากให้ดูโหดร้าย", en: "I don't want it to be mean this time" },
+                { time: 41, th: "รู้ดี อย่าห่วงไม่เคยจะทำให้เธอต้องลำบาก", en: "I know. Don't worry. I won't bother you." },
+                { time: 49, th: "และอยากจะให้รู้เอาไว้", en: "And I want you to know that" },
+                { time: 55, th: "ถ้าเธอรักใครมากสักหนึ่งคน และผลคือเขาจะไป", en: "If you really love someone and they leave" },
+                { time: 63, th: "เพราะรักนั้นเธอจะไม่ยอมแม้แต่ปล่อยให้ เขากังวลแม้แต่น้อย", en: "Because of love, you won't let them worry" },
+                { time: 71, th: "เจ็บเท่าไรยินดีให้เขานั้นเดินไป", en: "No matter how it hurts, let them go" },
+                { time: 79, th: "อย่างที่ฉันกำลังที่จะทำ เจ็บช้ำด้วยความเต็มใจ", en: "Just like me, accepting pain with a smile" },
+                { time: 87, th: "ขอแค่สักครั้งที่อย่างน้อยเธอสุขใจแม้ ทำได้เพียงตอนสุดท้าย", en: "At least you are happy even at the end" },
+                { time: 95, th: "ก่อนจะลาไม่ว่าเธอจะพูดอะไร คำไหนก็ยอมโดยดี", en: "Whatever you say before we're apart, I'll take it" },
+                { time: 110, th: "และแล้วก็รู้ เมื่อเธอเอ่ยปากบอกฉัน", en: "I knew it when you told me" },
+                { time: 118, th: "ว่าความรักคงต้องการมีระยะบางอย่าง", en: "That love needs some distance" },
+                { time: 126, th: "แปลว่าจะให้เราห่างกันไป", en: "That means we have to separate" },
+                { time: 134, th: "จากกันคราวนี้ ไม่อยากเป็นคนใจร้าย", en: "I don't want to be a villain this time" }
+            ]
+        };
+
+        function onYouTubeIframeAPIReady() { }
+
+        function initSyncPlayer() {
+            const url = document.getElementById('ytUrl').value;
+            const videoId = (url.match(/(?:v=|youtu\.be\/)([^&]+)/) || [])[1];
+            if (!videoId) return alert("Valid Link Required");
+
+            document.getElementById('cdThumbnail').src = `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`;
+
+            if (player) {
+                player.loadVideoById(videoId);
+            } else {
+                player = new YT.Player('player', {
+                    videoId: videoId,
+                    events: {
+                        'onReady': onPlayerReady,
+                        'onStateChange': onPlayerStateChange
+                    }
+                });
+            }
+            loadLyrics(videoId);
+        }
+
+        function onPlayerReady(event) { }
+
+        function togglePlayback() {
+            if (!player) return;
+            const state = player.getPlayerState();
+            state === YT.PlayerState.PLAYING ? player.pauseVideo() : player.playVideo();
+        }
+
+        function onPlayerStateChange(event) {
+            const cd = document.getElementById('cdDisc');
+            if (event.data == YT.PlayerState.PLAYING) {
+                cd.style.animationPlayState = 'running';
+                startSync();
+            } else {
+                cd.style.animationPlayState = 'paused';
+                stopSync();
+            }
+        }
+
+        function loadLyrics(videoId) {
+            currentLyrics = MOCK_DB[videoId] || [{ time: 0, th: "Data Not Found", en: "Data Not Found" }];
+            const grid = document.getElementById('lyricsGrid');
+            grid.innerHTML = "";
+            currentLyrics.forEach((line, index) => {
+                const row = document.createElement('div');
+                row.className = 'lyric-item';
+                row.id = `line-${index}`;
+                row.onclick = () => player.seekTo(line.time, true);
+                row.innerHTML = `<div class="thai-col">${line.th}</div><div class="eng-col">${line.en}</div>`;
+                grid.appendChild(row);
+            });
+            document.getElementById('lyricsView').style.display = 'block';
+            grid.scrollTop = 0;
+        }
+
+        function ejectDisc() {
+            if (player) player.stopVideo();
+            document.getElementById('ytUrl').value = "";
+            document.getElementById('cdThumbnail').src = "";
+            document.getElementById('lyricsView').style.display = 'none';
+        }
+
+        function startSync() {
+            stopSync();
+            syncInterval = setInterval(() => {
+                const currentTime = player.getCurrentTime();
+                updateHighlight(currentTime);
+            }, 200);
+        }
+
+        function stopSync() { clearInterval(syncInterval); }
+
+        function updateHighlight(time) {
+            let activeIndex = -1;
+            for (let i = 0; i < currentLyrics.length; i++) {
+                if (time >= currentLyrics[i].time) activeIndex = i;
+            }
+
+            if (activeIndex !== -1) {
+                const items = document.querySelectorAll('.lyric-item');
+                items.forEach(it => it.classList.remove('active'));
+                const activeLine = document.getElementById(`line-${activeIndex}`);
+                if (activeLine && !activeLine.classList.contains('active')) {
+                    activeLine.classList.add('active');
+                    const grid = document.getElementById('lyricsGrid');
+                    const offset = activeLine.offsetTop - grid.offsetTop - (grid.clientHeight / 2) + (activeLine.clientHeight / 2);
+                    grid.scrollTo({ top: offset, behavior: 'smooth' });
+                }
+            }
+        }
+    </script>
+</body>
+
+</html>
