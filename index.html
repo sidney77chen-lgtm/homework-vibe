@@ -410,9 +410,11 @@
         function onYouTubeIframeAPIReady() { }
 
         function initSyncPlayer() {
-            const url = document.getElementById('ytUrl').value;
-            const videoId = (url.match(/(?:v=|youtu\.be\/)([^&]+)/) || [])[1];
-            if (!videoId) return alert("Valid Link Required");
+            const url = document.getElementById('ytUrl').value.trim();
+            // Robust regex to capture 11-char video ID, stopping at ? or &
+            const videoId = (url.match(/(?:v=|youtu\.be\/|embed\/|v\/|shorts\/)([a-zA-Z0-9_-]{11})/) || [])[1];
+
+            if (!videoId) return alert("Valid YouTube Link Required");
 
             document.getElementById('cdThumbnail').src = `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`;
 
