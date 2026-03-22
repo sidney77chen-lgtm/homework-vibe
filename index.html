@@ -1,18 +1,20 @@
 <!DOCTYPE html>
-<html lang="en">
-
+<html lang="zh-Hant">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Minimalist Music | TH ➞ EN Sync</title>
+    <title>清水模無印風音樂播放器 | TH ➞ RTGS ➞ EN</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --muji-white: #f7f7f7;
-            --muji-gray: #e0e0e0;
-            --oak-wood: #d6bfa3;
-            --text-main: #333333;
-            --text-light: #888888;
-            --spotify-active: #1db954;
+            /* 清水模配色與無印簡約風 */
+            --bg-concrete: #e2e2e2;
+            --bg-panel: #f7f7f7;
+            --text-dark: #333333;
+            --text-gray: #7a7a7a;
+            --shadow-light: #ffffff;
+            --shadow-dark: #c4c4c4;
+            --accent: #9e9e9e;
         }
 
         * {
@@ -23,276 +25,269 @@
         }
 
         body {
-            background-color: var(--muji-white);
-            color: var(--text-main);
-            font-family: 'Inter', -apple-system, sans-serif;
+            font-family: 'Noto Sans TC', -apple-system, sans-serif;
+            background-color: var(--bg-concrete);
+            /* 輕微的材質顆粒感模擬清水模 */
+            background-image: url('data:image/svg+xml;utf8,<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"><filter id="noiseFilter"><feTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="3" stitchTiles="stitch"/></filter><rect width="100%" height="100%" filter="url(%23noiseFilter)" opacity="0.04"/></svg>');
+            color: var(--text-dark);
             min-height: 100vh;
             display: flex;
             flex-direction: column;
             align-items: center;
-            padding: 40px 20px;
+            padding: 50px 20px;
             overflow-x: hidden;
         }
 
-        /* --- CD PLAYER UNIT --- */
-        .player-wall {
-            position: relative;
-            width: 260px;
-            height: 260px;
-            background: #ffffff;
-            border-radius: 40px;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.05);
+        .container {
+            width: 100%;
+            max-width: 500px;
             display: flex;
+            flex-direction: column;
             align-items: center;
-            justify-content: center;
-            margin-bottom: 30px;
-            border: 1px solid #eee;
-            transition: width 0.3s, height 0.3s;
+            gap: 40px;
+            z-index: 10;
         }
 
+        /* --- 壁掛式 CD 播放器 (深澤直人風格) --- */
+        .player-wall {
+            position: relative;
+            width: 280px;
+            height: 280px;
+            background: var(--bg-panel);
+            border-radius: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            /* 實體陰影，無發光感 */
+            box-shadow: 
+                -10px -10px 20px rgba(255,255,255,0.7),
+                10px 10px 20px rgba(0,0,0,0.1),
+                inset 1px 1px 2px rgba(255,255,255,0.9),
+                inset -1px -1px 2px rgba(0,0,0,0.02);
+            margin-bottom: 20px;
+        }
+
+        /* 確保唱片槽是正圓形 */
         .cd-rotating-area {
-            width: 85%;
-            height: 85%;
-            background: #f4f4f4;
+            width: 82%;
+            aspect-ratio: 1 / 1;
+            background: #ebebeb;
             border-radius: 50%;
             position: relative;
-            overflow: hidden;
             display: flex;
-            align-items: center;
             justify-content: center;
-            border: 2px solid #eee;
+            align-items: center;
+            box-shadow: 
+                inset 4px 4px 8px rgba(0,0,0,0.06),
+                inset -4px -4px 8px rgba(255,255,255,0.8);
         }
 
         .cd-disc {
-            width: 100%;
-            height: 100%;
+            width: 96%;
+            height: 96%;
             border-radius: 50%;
+            background: #1a1a1a;
             position: relative;
-            animation: rotateCD 8s linear infinite;
-            animation-play-state: paused;
-            background: #eee;
+            display: flex;
+            justify-content: center;
+            align-items: center;
             overflow: hidden;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+            animation: rotateCD 6s linear infinite;
+            animation-play-state: paused;
         }
 
+        /* 唱片紋理 */
+        .cd-disc::before {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: repeating-radial-gradient(
+                #111 0, 
+                #111 2px, 
+                #1e1e1e 3px, 
+                #1e1e1e 4px
+            );
+            opacity: 0.3;
+            z-index: 2;
+            border-radius: 50%;
+            pointer-events: none;
+        }
+
+        /* 封面縮圖 */
         .cd-thumbnail {
             width: 100%;
             height: 100%;
             object-fit: cover;
-            opacity: 0.9;
-            transition: 0.5s;
+            transform: scale(1.35); /* 裁切上下黑邊 */
+            opacity: 0.85;
+            z-index: 1;
         }
 
-        .cd-disc::after {
-            content: "";
+        /* 中心孔洞 */
+        .cd-hole {
             position: absolute;
-            top: 50%;
-            left: 50%;
-            width: 15%;
-            height: 15%;
-            background: white;
+            width: 18%;
+            height: 18%;
+            background: var(--bg-panel);
             border-radius: 50%;
-            transform: translate(-50%, -50%);
-            border: 2px solid #ddd;
-            z-index: 2;
+            z-index: 3;
+            box-shadow: 
+                inset 1px 1px 3px rgba(0,0,0,0.2), 
+                0 0 0 4px rgba(255,255,255,0.1);
         }
 
         @keyframes rotateCD {
-            from {
-                transform: rotate(0deg);
-            }
-
-            to {
-                transform: rotate(360deg);
-            }
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
         }
 
+        /* 拉繩開關 (拉動播放) */
         .pull-string {
             position: absolute;
-            top: 260px;
+            bottom: -70px;
             left: 50%;
-            width: 1px;
-            height: 100px;
-            background: #ccc;
             transform: translateX(-50%);
+            width: 2px;
+            height: 70px;
+            background: #b0b0b0;
             cursor: pointer;
             z-index: 5;
+            box-shadow: 1px 0 2px rgba(255,255,255,0.8);
+            transition: height 0.15s ease-out;
         }
 
         .pull-string::after {
             content: "";
             position: absolute;
-            bottom: -8px;
+            bottom: -10px;
             left: -4px;
-            width: 8px;
-            height: 8px;
-            background: #bbb;
+            width: 10px;
+            height: 10px;
+            background: #dedede;
             border-radius: 50%;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.15);
         }
 
-        /* --- CONTROL BAR --- */
+        .player-wall:active .pull-string {
+            height: 85px;
+        }
+
+        /* --- 實體按鈕控制列 --- */
         .control-bar {
             display: flex;
-            gap: 30px;
-            margin-bottom: 30px;
-            align-items: center;
+            gap: 25px;
+            margin-bottom: 10px;
         }
 
-        .icon-btn {
-            background: none;
+        .btn-physical {
+            background: var(--bg-panel);
             border: none;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 12px;
+            width: 45px;
+            height: 45px;
             border-radius: 50%;
-            transition: background 0.2s, transform 0.1s;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            color: var(--text-dark);
+            box-shadow: 
+                -3px -3px 8px rgba(255,255,255,0.8),
+                3px 3px 8px rgba(0,0,0,0.08);
+            transition: all 0.2s;
+            outline: none;
         }
 
-        .icon-btn:hover {
-            background: rgba(0, 0, 0, 0.03);
+        .btn-physical:active {
+            box-shadow: 
+                inset -2px -2px 5px rgba(255,255,255,0.8),
+                inset 2px 2px 5px rgba(0,0,0,0.08);
+            color: var(--accent);
         }
 
-        .icon-btn:active {
-            transform: scale(0.9);
+        .btn-physical svg {
+            width: 18px;
+            height: 18px;
+            fill: currentColor;
         }
 
-        .icon-btn svg {
-            width: 28px;
-            height: 28px;
-            fill: #666;
-        }
-
-        .btn-eject svg {
-            fill: none;
-            stroke: #cc6666;
-            stroke-width: 2;
-        }
-
-        /* --- INPUT AREA --- */
+        /* --- 搜尋載入區 --- */
         .search-container {
             width: 100%;
-            max-width: 600px;
+            background: var(--bg-panel);
+            padding: 8px;
+            border-radius: 25px;
             display: flex;
-            flex-direction: column;
-            gap: 10px;
-            margin-bottom: 30px;
+            box-shadow: 
+                -4px -4px 10px rgba(255,255,255,0.6),
+                4px 4px 10px rgba(0,0,0,0.08);
         }
 
-        @media (min-width: 600px) {
-            .search-container {
-                flex-direction: row;
-            }
-        }
-
-        input[type="text"] {
-            width: 100%;
-            background: #ffffff;
-            border: 1px solid #ddd;
-            border-radius: 12px;
-            padding: 14px 20px;
-            font-size: 1rem;
+        .search-container input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            padding: 10px 18px;
+            font-size: 15px;
+            color: var(--text-dark);
             outline: none;
-            transition: border-color 0.3s;
-            appearance: none;
+            font-family: 'Noto Sans TC', sans-serif;
+        }
+
+        .search-container input::placeholder {
+            color: #a3a3a3;
         }
 
         .btn-load {
-            background: #333;
-            color: white;
+            background: #e8e8e8;
+            color: var(--text-dark);
             border: none;
-            border-radius: 12px;
-            padding: 14px 24px;
-            cursor: pointer;
-            font-size: 0.95rem;
-            font-weight: 600;
-            transition: background 0.2s;
-            text-align: center;
-        }
-
-        /* --- LYRICS VIEW (RWD) --- */
-        .container {
-            max-width: 900px;
-            width: 100%;
-        }
-
-        .header-labels {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            margin-bottom: 15px;
             padding: 0 20px;
-            font-size: 0.7rem;
-            color: var(--text-light);
-            letter-spacing: 2px;
-            text-transform: uppercase;
+            border-radius: 18px;
+            font-weight: 500;
+            cursor: pointer;
+            box-shadow: 
+                -2px -2px 4px rgba(255,255,255,0.8),
+                2px 2px 4px rgba(0,0,0,0.05);
+            transition: all 0.2s;
+            font-family: inherit;
+        }
+
+        .btn-load:active {
+            box-shadow: inset 2px 2px 4px rgba(0,0,0,0.1);
+        }
+
+        /* --- 歌詞顯示區 --- */
+        .lyrics-viewport {
+            width: 100%;
+            height: 450px;
+            overflow-y: auto;
+            position: relative;
+            /* 漸層遮罩產生上下淡出效果 */
+            mask-image: linear-gradient(to bottom, transparent, black 15%, black 85%, transparent);
+            -webkit-mask-image: linear-gradient(to bottom, transparent, black 15%, black 85%, transparent);
+            scrollbar-width: none;
+        }
+        
+        .lyrics-viewport::-webkit-scrollbar {
+            display: none;
         }
 
         .lyrics-grid {
-            background: #ffffff;
-            border-radius: 24px;
-            height: 450px;
-            overflow-y: scroll;
-            scroll-behavior: smooth;
-            border: 1px solid #eee;
-            padding: 180px 0;
-            -webkit-overflow-scrolling: touch;
-        }
-
-        .lyrics-grid::-webkit-scrollbar {
-            width: 0;
-            background: transparent;
+            padding: 200px 0;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
         }
 
         .lyric-item {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            padding: 30px 40px;
+            text-align: center;
+            padding: 10px 20px;
             transition: all 0.5s ease;
-            opacity: 0.15;
+            opacity: 0.25;
+            transform: scale(0.95);
             cursor: pointer;
-        }
-
-        /* MOBILE OVERRIDES */
-        @media (max-width: 600px) {
-            body {
-                padding: 30px 15px;
-            }
-
-            .player-wall {
-                width: 200px;
-                height: 200px;
-                border-radius: 30px;
-            }
-
-            .pull-string {
-                top: 200px;
-                height: 80px;
-            }
-
-            .header-labels {
-                display: none;
-            }
-
-            .lyric-item {
-                grid-template-columns: 1fr;
-                text-align: center;
-                padding: 25px 20px;
-                gap: 8px;
-            }
-
-            .thai-col {
-                font-size: 1.25rem;
-                padding-right: 0;
-            }
-
-            .eng-col {
-                font-size: 1rem;
-            }
-
-            .lyrics-grid {
-                height: 400px;
-                padding: 160px 0;
-            }
         }
 
         .lyric-item.active {
@@ -301,208 +296,628 @@
         }
 
         .thai-col {
-            font-size: 1.35rem;
-            font-weight: 600;
-            padding-right: 30px;
-            color: #111;
-            line-height: 1.4;
+            font-size: 1.4rem;
+            font-weight: 500;
+            margin-bottom: 6px;
+            color: var(--text-dark);
+        }
+
+        .rtgs-col {
+            font-size: 0.85rem;
+            color: var(--text-gray);
+            margin-bottom: 4px;
+            letter-spacing: 0.5px;
+            font-family: sans-serif;
         }
 
         .eng-col {
-            font-size: 1.15rem;
-            color: #888;
-            line-height: 1.4;
+            font-size: 1rem;
+            color: #555555;
+            font-weight: 300;
         }
 
-        .lyric-item.active .thai-col {
-            color: #000;
+        .status-badge {
+            font-size: 0.75rem;
+            color: var(--text-gray);
+            margin-top: -15px;
+            opacity: 0.7;
+            text-align: center;
         }
 
-        .lyric-item.active .eng-col {
-            color: #555;
-        }
-
-        #player {
+        /* YouTube 隱藏容器 (防阻擋機制: 放在主視覺後方，避免被瀏覽器靜音) */
+        #youtube-container {
             position: absolute;
-            width: 1px;
-            height: 1px;
-            opacity: 0;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            width: 250px;
+            height: 250px;
+            opacity: 0.01; /* 還原隱藏 */
+            z-index: -10;
             pointer-events: none;
         }
     </style>
 </head>
-
 <body>
 
-    <div class="player-wall">
-        <div class="cd-rotating-area">
-            <div id="cdDisc" class="cd-disc">
-                <img id="cdThumbnail" class="cd-thumbnail" src="" alt="">
-            </div>
-        </div>
-        <div class="pull-string" onclick="togglePlayback()"></div>
-    </div>
-
-    <div class="control-bar">
-        <button class="icon-btn" onclick="player.playVideo()" aria-label="Play">
-            <svg viewBox="0 0 24 24">
-                <path d="M8 5v14l11-7z" />
-            </svg>
-        </button>
-        <button class="icon-btn" onclick="player.pauseVideo()" aria-label="Pause">
-            <svg viewBox="0 0 24 24">
-                <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z" />
-            </svg>
-        </button>
-        <button class="icon-btn btn-eject" onclick="ejectDisc()" aria-label="Eject">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3" />
-            </svg>
-        </button>
-    </div>
-
-    <div class="search-container">
-        <input type="text" id="ytUrl" placeholder="Paste YouTube Link..." spellcheck="false">
-        <button class="btn-load" onclick="initSyncPlayer()">Load 💿</button>
-    </div>
-
     <div class="container">
-        <div id="lyricsView" style="display: none;">
-            <div class="header-labels">
-                <span>Original Thai</span>
-                <span>English</span>
+        <!-- 播放器本體 -->
+        <div class="player-wall" id="cdPlayerWall">
+            <div class="cd-rotating-area">
+                <div id="cdDisc" class="cd-disc">
+                    <img id="cdThumbnail" class="cd-thumbnail" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='10'><rect width='10' height='10' fill='%23222'/></svg>" alt="">
+                    <div class="cd-hole"></div>
+                </div>
             </div>
+            <div class="pull-string" onclick="togglePlayback()"></div>
+        </div>
+
+        <!-- 實體按鈕 -->
+        <div class="control-bar">
+            <button class="btn-physical" onclick="togglePlayback()" aria-label="Play/Pause">
+                <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+            </button>
+            <button class="btn-physical" onclick="window.location.reload()" aria-label="Eject" title="換片 (Eject)">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"></path></svg>
+            </button>
+        </div>
+
+        <!-- 搜尋列 -->
+        <div class="search-container">
+            <input type="text" id="ytUrl" placeholder="貼上 YouTube 泰文歌網址..." spellcheck="false" onkeydown="if(event.key === 'Enter') initSyncPlayer()">
+            <button class="btn-load" onclick="initSyncPlayer()">Load</button>
+        </div>
+        
+        <div class="status-badge" id="appStatus">Minimalist Audio Unit • Ready</div>
+
+        <!-- 歌詞顯示 -->
+        <div class="lyrics-viewport" id="lyricsView" style="display: none;">
             <div id="lyricsGrid" class="lyrics-grid"></div>
         </div>
     </div>
 
-    <div id="player"></div>
+    <!-- YouTube 播放器 -->
+    <div id="youtube-container">
+        <div id="player"></div>
+    </div>
+
     <script src="https://www.youtube.com/iframe_api"></script>
 
     <script>
         let player;
         let syncInterval;
         let currentLyrics = [];
+        let startY = 0;
+        let pullStringHeight = 80;
 
-        // FULL LYRICS: Polycat - พบกันใหม่ (So Long)
-        const MOCK_DB = {
-            "x5hkD526A5M": [
-                { time: 0, th: "[Piano Intro]", en: "[Piano Intro]" },
-                { time: 15, th: "และแล้วก็รู้ ว่าคนที่จบกันไป", en: "Finally, I know when people split up" },
-                { time: 21, th: "ด้วยคำที่บอกว่าเราจะมาพบกันใหม่", en: "Saying 'see you again'" },
-                { time: 26, th: "มักจะไม่พบกันอีก", en: "Usually, they won't meet again" },
-                { time: 33, th: "จากกันคราวนี้ ไม่อยากให้ดูโหดร้าย", en: "I don't want it to be mean this time" },
-                { time: 41, th: "รู้ดี อย่าห่วงไม่เคยจะทำให้เธอต้องลำบาก", en: "I know. Don't worry. I won't bother you." },
-                { time: 49, th: "และอยากจะให้รู้เอาไว้", en: "And I want you to know that" },
-                { time: 55, th: "ถ้าเธอรักใครมากสักหนึ่งคน และผลคือเขาจะไป", en: "If you really love someone and they leave" },
-                { time: 63, th: "เพราะรักนั้นเธอจะไม่ยอมแม้แต่ปล่อยให้ เขากังวลแม้แต่น้อย", en: "Because of love, you won't let them worry" },
-                { time: 71, th: "เจ็บเท่าไรยินดีให้เขานั้นเดินไป", en: "No matter how it hurts, let them go" },
-                { time: 79, th: "อย่างที่ฉันกำลังที่จะทำ เจ็บช้ำด้วยความเต็มใจ", en: "Just like me, accepting pain with a smile" },
-                { time: 87, th: "ขอแค่สักครั้งที่อย่างน้อยเธอสุขใจแม้ ทำได้เพียงตอนสุดท้าย", en: "At least you are happy even at the end" },
-                { time: 95, th: "ก่อนจะลาไม่ว่าเธอจะพูดอะไร คำไหนก็ยอมโดยดี", en: "Whatever you say before we're apart, I'll take it" },
-                { time: 110, th: "และแล้วก็รู้ เมื่อเธอเอ่ยปากบอกฉัน", en: "I knew it when you told me" },
-                { time: 118, th: "ว่าความรักคงต้องการมีระยะบางอย่าง", en: "That love needs some distance" },
-                { time: 126, th: "แปลว่าจะให้เราห่างกันไป", en: "That means we have to separate" },
-                { time: 134, th: "จากกันคราวนี้ ไม่อยากเป็นคนใจร้าย", en: "I don't want to be a villain this time" }
-            ]
-        };
+        let globalVideoId = "";
+        let audioFallback = null; // 用來繞過被禁止嵌入外部網頁的歌曲
 
+        // YouTube API 就緒回呼 (保留空函式以防報錯)
         function onYouTubeIframeAPIReady() { }
 
-        function initSyncPlayer() {
-            const url = document.getElementById('ytUrl').value.trim();
-            // Robust regex to capture 11-char video ID, stopping at ? or &
+        async function initSyncPlayer() {
+            const ytInput = document.getElementById('ytUrl');
+            const url = ytInput.value.trim();
             const videoId = (url.match(/(?:v=|youtu\.be\/|embed\/|v\/|shorts\/)([a-zA-Z0-9_-]{11})/) || [])[1];
+            
+            if (!videoId) {
+                alert("請輸入有效的 YouTube 連結");
+                document.getElementById('cdDisc').classList.remove('playing');
+                return;
+            }
 
-            if (!videoId) return alert("Valid YouTube Link Required");
+            globalVideoId = videoId; // 綁定到全域變數以供 onPlayerReady 讀取
+            updateStatus("載入光碟中...");
 
-            document.getElementById('cdThumbnail').src = `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`;
+            // 更新 UI 封面
+            const thumb = `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
+            document.getElementById('cdThumbnail').src = thumb;
+            document.getElementById('lyricsView').style.display = 'block';
 
-            if (player) {
-                player.loadVideoById(videoId);
+            if (player && typeof player.cueVideoById === 'function') {
+                // 這裡必須改用 cueVideoById，如果用 loadVideoById 會無視 autoplay=0 強制開播
+                // 且再次載入不會重複發送 onReady 事件，所以我們手動呼叫
+                player.cueVideoById(videoId);
+                setTimeout(() => {
+                    onPlayerReady({ target: player });
+                }, 500); 
             } else {
                 player = new YT.Player('player', {
+                    height: '300',
+                    width: '300',
                     videoId: videoId,
+                    playerVars: {
+                        'autoplay': 0,
+                        'controls': 0,
+                        'disablekb': 1,
+                        'fs': 0,
+                        'modestbranding': 1,
+                        'rel': 0,
+                        'playsinline': 1,
+                        'origin': 'https://sidney77chen-lgtm.github.io' 
+                    },
                     events: {
                         'onReady': onPlayerReady,
-                        'onStateChange': onPlayerStateChange
+                        'onStateChange': onPlayerStateChange,
+                        'onError': onPlayerError
                     }
                 });
             }
-            loadLyrics(videoId);
         }
 
-        function onPlayerReady(event) { }
+        async function onPlayerReady(event) {
+            let title = "";
+            updateStatus("正在解析歌曲資訊...");
+            
+            // 確保音量，避免瀏覽器將不可見 iframe 預設靜音
+            event.target.unMute();
+            event.target.setVolume(100);
 
+            try {
+                // 嘗試透過 Noembed 抓取標題
+                const res = await fetch(`https://noembed.com/embed?url=https://www.youtube.com/watch?v=${globalVideoId}`);
+                const data = await res.json();
+                if (data.title) title = data.title;
+            } catch (e) {
+                console.warn("Noembed 失敗");
+            }
+
+            if (!title) {
+                try {
+                    title = player.getVideoData().title;
+                } catch (e) {}
+            }
+
+            if (!title) {
+                // 備用方案
+                title = document.getElementById('ytUrl').value.split('/').pop();
+            }
+
+            loadUniversalLyrics(title);
+        }
+
+        // 統一的播放/暫停開關函式
         function togglePlayback() {
-            if (!player) return;
+            if (audioFallback) {
+                if (audioFallback.paused) audioFallback.play();
+                else audioFallback.pause();
+                return;
+            }
+
+            if (!player || typeof player.getPlayerState !== 'function') return;
             const state = player.getPlayerState();
-            state === YT.PlayerState.PLAYING ? player.pauseVideo() : player.playVideo();
+            if (state === YT.PlayerState.PLAYING) {
+                player.pauseVideo();
+            } else {
+                player.playVideo();
+            }
+        }
+
+        function ejectDisc() {
+            if (audioFallback) {
+                audioFallback.pause();
+                audioFallback.src = '';
+                audioFallback = null;
+            }
+            if (player && typeof player.stopVideo === 'function') {
+                player.stopVideo();
+            }
+            document.getElementById('cdDisc').classList.remove('playing');
+            document.getElementById('cdThumbnail').src = '';
+            document.getElementById('ytUrl').value = '';
+            document.getElementById('lyricsView').style.display = 'none';
+            document.getElementById('lyricsGrid').innerHTML = '';
+            isPlaying = false;
+            stopSync(); // Use stopSync to cancel animation frame
+            globalVideoId = '';
+            updateStatus("待機中...");
         }
 
         function onPlayerStateChange(event) {
             const cd = document.getElementById('cdDisc');
-            if (event.data == YT.PlayerState.PLAYING) {
+            
+            if (event.data === YT.PlayerState.PLAYING) {
                 cd.style.animationPlayState = 'running';
+                isPlaying = true;
                 startSync();
+                updateStatus("正在播放");
             } else {
                 cd.style.animationPlayState = 'paused';
+                isPlaying = false;
                 stopSync();
+                if (event.data === YT.PlayerState.PAUSED) updateStatus("暫停中");
+                if (event.data === YT.PlayerState.ENDED) {
+                    updateStatus("播放完畢");
+                    // No need to cancelAnimationFrame here, stopSync already does it.
+                }
             }
         }
 
-        function loadLyrics(videoId) {
-            currentLyrics = MOCK_DB[videoId] || [{ time: 0, th: "Data Not Found", en: "Data Not Found" }];
-            const grid = document.getElementById('lyricsGrid');
-            grid.innerHTML = "";
-            currentLyrics.forEach((line, index) => {
-                const row = document.createElement('div');
-                row.className = 'lyric-item';
-                row.id = `line-${index}`;
-                row.onclick = () => player.seekTo(line.time, true);
-                row.innerHTML = `<div class="thai-col">${line.th}</div><div class="eng-col">${line.en}</div>`;
-                grid.appendChild(row);
-            });
-            document.getElementById('lyricsView').style.display = 'block';
-            grid.scrollTop = 0;
+        // 新增異常處理：捕捉因為版權問題被封鎖網外播放的 MV，並自動重導到第三方音訊直連代理
+        async function onPlayerError(event) {
+            let msg = "未知的播放器錯誤";
+            if (event.data === 101 || event.data === 150) {
+                updateStatus("版權受限，嘗試載入直連音軌...");
+                
+                // Piped API Mirrors 防護網，解決公共伺服器常態性故障 502/429 問題
+                const pipedInstances = [
+                    'https://pipedapi.kavin.rocks',
+                    'https://pipedapi.tokhmi.xyz',
+                    'https://pipedapi.syncpundit.io',
+                    'https://api.piped.projectsegfau.lt',
+                    'https://piped-api.lunar.icu'
+                ];
+                
+                for (let instance of pipedInstances) {
+                    try {
+                        const res = await fetch(`${instance}/streams/${globalVideoId}`, { signal: AbortSignal.timeout(4000) });
+                        if (!res.ok) continue; // 若該節點壞掉，直接跳下一個
+                        const data = await res.json();
+                        
+                        if (data && data.audioStreams && data.audioStreams.length > 0) {
+                            const stream = data.audioStreams.find(s => s.mimeType && s.mimeType.includes('audio/mp4')) || data.audioStreams[0];
+                            
+                            audioFallback = new Audio(stream.url);
+                            audioFallback.addEventListener('play', () => {
+                                isPlaying = true;
+                                document.getElementById('cdDisc').classList.add('playing');
+                                document.getElementById('cdDisc').style.animationPlayState = 'running';
+                                startSync();
+                                updateStatus("正在播放 (代理音軌)");
+                            });
+                            audioFallback.addEventListener('pause', () => {
+                                isPlaying = false;
+                                document.getElementById('cdDisc').classList.remove('playing');
+                                document.getElementById('cdDisc').style.animationPlayState = 'paused';
+                                stopSync();
+                                updateStatus("暫停中 (代理音軌)");
+                            });
+                            audioFallback.addEventListener('ended', () => {
+                                isPlaying = false;
+                                document.getElementById('cdDisc').classList.remove('playing');
+                                document.getElementById('cdDisc').style.animationPlayState = 'paused';
+                                stopSync();
+                                updateStatus("播放完畢 (代理音軌)");
+                            });
+                            
+                            audioFallback.play().catch(e => {
+                                console.warn("自動播放限制，請手動點擊 Play");
+                            });
+                            updateStatus("就緒 (代理音軌，無限制)");
+                            return; // 成功繞過限制，結束！
+                        }
+                    } catch (e) {
+                        console.warn(`代理節點 ${instance} 失效，嘗試下一個...`);
+                    }
+                }
+                msg = "版權方嚴格禁止在外部網頁播放。音軌代理器也失效。";
+            } else if (event.data === 2) {
+                msg = "無效的 YouTube 參數編號。";
+            }
+            alert(`影片播放失敗！\n原因：${msg}\n(請嘗試在瀏覽器新開分頁直接看。我們連代理引擎都盡力了)`);
+            document.getElementById('cdDisc').classList.remove('playing');
+            isPlaying = false;
+            stopSync();
         }
 
-        function ejectDisc() {
-            if (player) player.stopVideo();
-            document.getElementById('ytUrl').value = "";
-            document.getElementById('cdThumbnail').src = "";
-            document.getElementById('lyricsView').style.display = 'none';
+        async function loadUniversalLyrics(title) {
+            const grid = document.getElementById('lyricsGrid');
+            grid.innerHTML = `
+                <div class="lyric-item active">
+                    <div style="font-size: 1.2rem; color: #555;">正在搜尋 LRC 歌詞庫...</div>
+                    <div style="font-size: 0.9rem; color: #888; margin-top: 10px;">${title}</div>
+                </div>`;
+            currentLyrics = [];
+
+            try {
+                // 清理標題以提高搜尋準確度
+                let cleanTitle = title.replace(/\[.*?\]|\(.*?\)|【.*?】|「.*?」/g, '')
+                    .replace(/official\s*video|music\s*video|mv|lyric\s*video|visualizer|audio/gi, '')
+                    .replace(/\s+/g, ' ').trim();
+
+                const thaiMatch = cleanTitle.match(/[\u0E00-\u0E7F\s]+/g);
+                const queryTitle = (thaiMatch && thaiMatch.join('').trim().length > 2) ? thaiMatch.join('').trim() : cleanTitle.replace(/[-–—/|]/g, ' '); // 移除破折號避免 LRCLIB 搜尋被混淆
+
+                updateStatus(`正在搜尋歌詞: ${queryTitle}`);
+                
+                let res = await fetch(`https://lrclib.net/api/search?q=${encodeURIComponent(queryTitle)}`);
+                let data = await res.json();
+                
+                // 優先尋找同步歌詞 (syncedLyrics)，若無則退而求其次找純文字 (plainLyrics)
+                let itemMatch = null;
+                if (data && data.length > 0) {
+                    itemMatch = data.find(item => item.syncedLyrics) || data.find(item => item.plainLyrics);
+                }
+
+                // 備用搜尋 1：用原影片標題搜尋（去除破折號）
+                if (!itemMatch && queryTitle !== cleanTitle) {
+                    let fallbackTitle = cleanTitle.replace(/[-–—/|]/g, ' ');
+                    res = await fetch(`https://lrclib.net/api/search?q=${encodeURIComponent(fallbackTitle)}`);
+                    data = await res.json();
+                    if (data && data.length > 0) itemMatch = data.find(item => item.syncedLyrics) || data.find(item => item.plainLyrics);
+                }
+
+                // 備用搜尋 2：切除破折號或 Ost. 等影片標題後綴，並過濾出純泰文字
+                if (!itemMatch) {
+                    let fallbackQuery = cleanTitle.split(/[-–—/|]|Ost\.|ost\.|OST\.|[Ff]eat/)[0].trim();
+                    let thaiOnlyFallback = fallbackQuery.match(/[\u0E00-\u0E7F\s]+/g)?.join('').trim() || fallbackQuery;
+                    res = await fetch(`https://lrclib.net/api/search?q=${encodeURIComponent(thaiOnlyFallback)}`);
+                    let backupData = await res.json();
+                    if (backupData && backupData.length > 0) itemMatch = backupData.find(item => item.syncedLyrics) || backupData.find(item => item.plainLyrics);
+                }
+
+                // 備用搜尋 3：若標題是 Artist - SongName 格式，嘗試從破折號後半部抓取歌名
+                if (!itemMatch && title.includes('-')) {
+                    let fallbackQuery2 = title.split('-')[1].split(/Ost\.|ost\.|OST\.|[Ff]eat|\[|\(/)[0].trim();
+                    let thaiOnlyFallback2 = fallbackQuery2.match(/[\u0E00-\u0E7F\s]+/g)?.join('').trim() || fallbackQuery2;
+                    res = await fetch(`https://lrclib.net/api/search?q=${encodeURIComponent(thaiOnlyFallback2)}`);
+                    let backupData2 = await res.json();
+                    if (backupData2 && backupData2.length > 0) itemMatch = backupData2.find(item => item.syncedLyrics) || backupData2.find(item => item.plainLyrics);
+                }
+
+                if (itemMatch) {
+                    if (itemMatch.syncedLyrics) {
+                        currentLyrics = parseLRC(itemMatch.syncedLyrics);
+                    } else if (itemMatch.plainLyrics) {
+                        // 降級處理：純文字歌詞，不再隨時間高亮
+                        currentLyrics = itemMatch.plainLyrics.split('\n').map(line => {
+                            return { time: -1, th: line.trim(), rtgs: '', en: '' };
+                        }).filter(l => l.th.length > 0);
+                        updateStatus("找到純文字歌詞 (無法同步捲動)");
+                    }
+                    
+                    renderLyrics();
+                    updateStatus("正在進行 Polyglot 翻譯優化...");
+                    await autoProcessPolyglot(currentLyrics);
+                    updateStatus("就緒");
+                } else {
+                    // LRCLIB 宣告失敗，啟動暴力爬蟲前往外部網站抓純文字
+                    updateStatus("LRCLIB 無結果，啟動外部網站爬蟲...");
+                    let fallbackQuery = cleanTitle.split(/[-–—/|]|Ost\.|ost\.|OST\.|[Ff]eat/)[0].trim();
+                    let thaiOnlyFallback = fallbackQuery.match(/[\u0E00-\u0E7F\s]+/g)?.join('').trim() || fallbackQuery;
+                    
+                    let scrapedText = await scrapeFallback(thaiOnlyFallback || cleanTitle);
+                    if (scrapedText) {
+                        currentLyrics = scrapedText.split('\n').map(line => {
+                            if (!line.trim()) return null;
+                            return { time: -1, th: line.trim(), rtgs: '', en: '' };
+                        }).filter(Boolean);
+                        
+                        updateStatus("從外部網站抓到純文字歌詞 (無法同步捲動)");
+                        renderLyrics();
+                        updateStatus("正在進行 Polyglot 翻譯優化...");
+                        await autoProcessPolyglot(currentLyrics);
+                        updateStatus("就緒 (外部純文字版)");
+                    } else {
+                        throw new Error("找不到歌詞");
+                    }
+                }
+            } catch (err) {
+                console.error(err);
+                grid.innerHTML = `
+                    <div class="lyric-item active">
+                        <div style="font-size: 1.2rem; color: #555;">找不到同步歌詞</div>
+                        <div style="font-size: 0.9rem; color: #888; margin-top: 10px;">請確定這首歌在 LRCLIB 上有泰文動態歌詞</div>
+                    </div>`;
+                updateStatus("歌詞擷取失敗");
+            }
+        }
+
+        function parseLRC(lrc) {
+            const lines = lrc.split('\n');
+            const result = [];
+            const timeRegex = /\[(\d+):(\d+\.\d+)\]/;
+
+            lines.forEach(line => {
+                const match = line.match(timeRegex);
+                if (match) {
+                    const time = parseInt(match[1]) * 60 + parseFloat(match[2]);
+                    const text = line.replace(timeRegex, '').trim();
+                    if (text) result.push({ time, th: text, rtgs: '', en: '' });
+                }
+            });
+            return result;
+        }
+
+        async function autoProcessPolyglot(lyrics) {
+            // 優化 1：一次性傳入整首歌的全文，讓 Google 翻譯透過「前後文」大幅修復泰文主詞動詞的變調問題
+            let thaiIndexes = [];
+            let thaiLines = [];
+            
+            lyrics.forEach((item, index) => {
+                if (/[\u0E00-\u0E7F]/.test(item.th)) {
+                    item.rtgs = generateRTGSPreview(item.th);
+                    thaiIndexes.push(index);
+                    thaiLines.push(item.th);
+                } else {
+                    item.en = item.th; // 非泰文直接帶過
+                }
+            });
+
+            if (thaiLines.length > 0) {
+                const fullTextToTranslate = thaiLines.join('\n');
+                try {
+                    // 使用 POST 避免網址過長，並整陀送出
+                    const res = await fetch(`https://translate.googleapis.com/translate_a/single?client=gtx&sl=th&tl=en&dt=t`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                        body: 'q=' + encodeURIComponent(fullTextToTranslate)
+                    });
+                    const transData = await res.json();
+                    
+                    // Google 翻譯的分段陣列還原
+                    let translatedFullText = "";
+                    if (transData && transData[0]) {
+                        transData[0].forEach(segment => {
+                            if (segment[0]) translatedFullText += segment[0];
+                        });
+                    }
+
+                    // 依照換行切回單句
+                    const enLines = translatedFullText.split('\n');
+                    for (let i = 0; i < thaiIndexes.length; i++) {
+                        if (enLines[i]) lyrics[thaiIndexes[i]].en = enLines[i].trim();
+                    }
+                } catch (e) {
+                    console.error("AI 翻譯錯誤:", e);
+                }
+            }
+            // 翻譯後刷新畫面
+            renderLyrics();
+        }
+
+        // 優化 2：利用 Intl.Segmenter 自動分詞泰文，幫助 RTGS 拼音增加空白方便跟唱
+        function generateRTGSPreview(text) {
+            const map = { 'ก': 'k', 'ข': 'kh', 'ฃ': 'kh', 'ค': 'kh', 'ฅ': 'kh', 'ฆ': 'kh', 'ง': 'ng', 'จ': 'ch', 'ฉ': 'ch', 'ช': 'ch', 'ซ': 's', 'ฌ': 'ch', 'ญ': 'y', 'ฎ': 'd', 'ฏ': 't', 'ฐ': 'th', 'ฑ': 'th', 'ฒ': 'th', 'ณ': 'n', 'ด': 'd', 'ต': 't', 'ถ': 'th', 'ท': 'th', 'ธ': 'th', 'น': 'n', 'บ': 'b', 'ป': 'p', 'ผ': 'ph', 'ฝ': 'f', 'พ': 'ph', 'ฟ': 'f', 'ภ': 'ph', 'ม': 'm', 'ย': 'y', 'ร': 'r', 'ล': 'l', 'ว': 'w', 'ศ': 's', 'ษ': 's', 'ส': 's', 'ห': 'h', 'ฬ': 'l', 'อ': 'o', 'ฮ': 'h' };
+            
+            // 啟動瀏覽器原生泰文分詞引擎（以 Word 為單位）
+            let segments = [text];
+            if (window.Intl && Intl.Segmenter) {
+                const segmenter = new Intl.Segmenter('th', { granularity: 'word' });
+                segments = Array.from(segmenter.segment(text)).map(s => s.segment);
+            }
+
+            let resultWords = [];
+            for (let word of segments) {
+                if (!word.trim()) continue;
+                let wordRtgs = '';
+                for (let char of word) {
+                    if (map[char]) wordRtgs += map[char];
+                    else if (/[ะ-าิ-ูเ-ไ]/.test(char)) wordRtgs += 'a';
+                }
+                if (wordRtgs) resultWords.push(wordRtgs);
+            }
+            
+            // 將斷詞結果用空白組合回來
+            return resultWords.length > 0 ? resultWords.join(' ') : "";
+        }
+
+        // 新增：透過 AllOrigins 跨域代理實作純前端的 DOM 暴力爬蟲
+        async function scrapeFallback(titleQuery) {
+            try {
+                // 1. 嘗試爬取 Deungdutjai (這網站常常自帶羅馬拼音與翻譯)
+                updateStatus("正在爬取 Deungdutjai.com...");
+                let searchUrl = `https://api.allorigins.win/get?url=${encodeURIComponent('https://deungdutjai.com/?s=' + titleQuery)}`;
+                let res = await fetch(searchUrl);
+                let data = await res.json();
+                let doc = new DOMParser().parseFromString(data.contents, 'text/html');
+                
+                let firstResult = doc.querySelector('h2.entry-title a, h1.entry-title a, article a');
+                if (firstResult) {
+                    updateStatus("解析 Deungdutjai 內文中...");
+                    let postUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(firstResult.href)}`;
+                    let postRes = await fetch(postUrl);
+                    let postData = await postRes.json();
+                    let postDoc = new DOMParser().parseFromString(postData.contents, 'text/html');
+                    let contentDom = postDoc.querySelector('.entry-content');
+                    if (contentDom) return contentDom.innerText.trim();
+                }
+
+                // 2. 嘗試爬取 Siamzone
+                updateStatus("嘗試爬取 Siamzone.com...");
+                let siamSearchUrl = `https://api.allorigins.win/get?url=${encodeURIComponent('https://www.siamzone.com/music/lyric/search.php?q=' + titleQuery)}`;
+                let siamRes = await fetch(siamSearchUrl);
+                let siamData = await siamRes.json();
+                let siamDoc = new DOMParser().parseFromString(siamData.contents, 'text/html');
+                
+                let siamLink = Array.from(siamDoc.querySelectorAll('a')).find(a => a.href.includes('/music/lyric/') && !a.href.includes('search'));
+                if (siamLink) {
+                    let absoluteUrl = siamLink.href.startsWith('http') ? siamLink.href : 'https://www.siamzone.com' + siamLink.getAttribute('href');
+                    updateStatus("解析 Siamzone 內文中...");
+                    let postUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(absoluteUrl)}`;
+                    let postRes = await fetch(postUrl);
+                    let postData = await postRes.json();
+                    let postDoc = new DOMParser().parseFromString(postData.contents, 'text/html');
+                    
+                    // Siamzone 歌詞通常放在這幾個特定的容器中
+                    let lyricsDiv = postDoc.querySelector('div[style*="line-height"], [class*="lyric"]');
+                    if (lyricsDiv) return lyricsDiv.innerText.trim();
+                }
+            } catch (e) {
+                console.warn("外部爬蟲失敗:", e);
+            }
+            return null;
+        }
+
+        function renderLyrics() {
+            const grid = document.getElementById('lyricsGrid');
+            grid.innerHTML = '';
+            currentLyrics.forEach((line, index) => {
+                const div = document.createElement('div');
+                div.className = 'lyric-item';
+                div.id = `lyric-${index}`;
+                // 點擊歌詞跳轉段落
+                div.onclick = () => {
+                    if(player && player.seekTo) player.seekTo(line.time, true);
+                };
+                div.innerHTML = `
+                    <div class="thai-col">${line.th}</div>
+                    ${line.rtgs ? `<div class="rtgs-col">${line.rtgs}</div>` : ''}
+                    <div class="eng-col">${line.en || ''}</div>
+                `;
+                grid.appendChild(div);
+            });
         }
 
         function startSync() {
             stopSync();
             syncInterval = setInterval(() => {
-                const currentTime = player.getCurrentTime();
-                updateHighlight(currentTime);
-            }, 200);
-        }
-
-        function stopSync() { clearInterval(syncInterval); }
-
-        function updateHighlight(time) {
-            let activeIndex = -1;
-            for (let i = 0; i < currentLyrics.length; i++) {
-                if (time >= currentLyrics[i].time) activeIndex = i;
-            }
-
-            if (activeIndex !== -1) {
-                const items = document.querySelectorAll('.lyric-item');
-                items.forEach(it => it.classList.remove('active'));
-                const activeLine = document.getElementById(`line-${activeIndex}`);
-                if (activeLine && !activeLine.classList.contains('active')) {
-                    activeLine.classList.add('active');
-                    const grid = document.getElementById('lyricsGrid');
-                    const offset = activeLine.offsetTop - grid.offsetTop - (grid.clientHeight / 2) + (activeLine.clientHeight / 2);
-                    grid.scrollTo({ top: offset, behavior: 'smooth' });
+                let currentTime = 0;
+                if (audioFallback) {
+                    currentTime = audioFallback.currentTime;
+                } else if (player && typeof player.getCurrentTime === 'function') {
+                    currentTime = player.getCurrentTime();
+                } else {
+                    return;
                 }
+                
+                // 如果是純靜態文字備用語意，不要啟動任何高光捲動
+                if (!currentLyrics.length || currentLyrics[0].time === -1) return;
+
+                let activeIndex = -1;
+                for (let i = 0; i < currentLyrics.length; i++) {
+                    if (currentTime >= currentLyrics[i].time) {
+                        activeIndex = i;
+                    } else {
+                        break;
+                    }
+                }
+
+                if (activeIndex !== -1) {
+                    updateActiveLyric(activeIndex);
+                }
+            }, 100);
+        }
+
+        function stopSync() { 
+            clearInterval(syncInterval); 
+        }
+
+        let currentActiveIndex = -1;
+        function updateActiveLyric(index) {
+            if (currentActiveIndex === index) return;
+            currentActiveIndex = index;
+            
+            const items = document.querySelectorAll('.lyric-item');
+            items.forEach(el => el.classList.remove('active'));
+            
+            const activeEl = document.getElementById(`lyric-${index}`);
+            if (activeEl) {
+                activeEl.classList.add('active');
+                const viewport = document.getElementById('lyricsView');
+                
+                // 將高光行完美置中：目標的頂部座標 - 視窗高度一半 + 目標高度一半
+                // 徹底移除不當的 200px 偏移量，解決斷句卡在視窗最下方導致切邊的問題
+                const scrollPos = activeEl.offsetTop - (viewport.clientHeight / 2) + (activeEl.clientHeight / 2);
+                viewport.scrollTo({ top: scrollPos, behavior: 'smooth' });
             }
         }
+
+        function updateStatus(text) {
+            document.getElementById('appStatus').innerText = text;
+        }
+
     </script>
 </body>
-
 </html>
